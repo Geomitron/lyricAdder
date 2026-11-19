@@ -10,6 +10,7 @@ function pickedPath(input) {
 // File requires to other .js files
 var songStuffs = require("./soundStuff.js");
 var difficultyReducer = require("./difficultyReducer.js");
+var songIni = require("./songIni.js");
 
 // Make $ available to the Electron context
 const $ = require("jquery");
@@ -275,19 +276,29 @@ function readAndSeparateChartFile() {
 	}
 }
 
+// The song's name and artist, from the song.ini in the chart's folder, or from the chart's [Song] section when the
+// folder has no song.ini
+function songNameAndArtist() {
+	let values = songIni.readSongSection(config.pathToChartFile);
+	if (values === null) {
+		values = {};
+		for (let i = 0; i < chartInfo.length; i++) {
+			if (chartInfo[i].includes("Name =")) {
+				values.name = chartInfo[i].split("\"")[1];
+			}
+			if (chartInfo[i].includes("Artist =")) {
+				values.artist = chartInfo[i].split("\"")[1];
+			}
+		}
+	}
+	return songIni.nameAndArtist(values);
+}
+
 // Reading the main song info and updating the HTML elements
 // Return "songName by artistName"
 function readSongInfo() {
-	let tempSongName, tempArtistName;
-	for (let i = 0; i < chartInfo.length; i++) {
-		if (chartInfo[i].includes("Name =")) {
-			tempSongName = chartInfo[i].split("\"")[1].replace(/[^\w\s]/g, "");
-		}
-		if (chartInfo[i].includes("Artist =")) {
-			tempArtistName = chartInfo[i].split("\"")[1].replace(/[^\w\s]/g, "");
-		}
-	}
-	let chartName = tempSongName + " by " + tempArtistName;
+	let song = songNameAndArtist();
+	let chartName = song.name.replace(/[^\w\s]/g, "") + " by " + song.artist.replace(/[^\w\s]/g, "");
 
 	return chartName;
 }
@@ -604,17 +615,8 @@ function testReadChartAndLrics() {
 
 // Write a backup file of the selected .chart file in a folder/file
 function writeBackupOfOriginalChart() {
-	var chartName, artistName;
-	for (var i = 0; i < chartInfo.length; i++) {
-		if (chartInfo[i].includes("Name =")) {
-			tempSongName = chartInfo[i].split("\"")[1].replace(/[^\w\s]/g, "");
-		}
-		if (chartInfo[i].includes("Artist =")) {
-			tempArtistName = chartInfo[i].split("\"")[1].replace(/[^\w\s]/g, "");
-		}
-	}
-
-	var backupFileName = tempSongName.replace(/ /g, "") + "_" + tempArtistName.replace(/ /g, "") + "_backup.chart";
+	var song = songNameAndArtist();
+	var backupFileName = song.name.replace(/[^\w\s]/g, "").replace(/ /g, "") + "_" + song.artist.replace(/[^\w\s]/g, "").replace(/ /g, "") + "_backup.chart";
 
 	fs.writeFileSync(config.pathToBackupFolder + "/" + backupFileName, fullChart.join("\r\n"), "utf8", function (err) {
 		if (err) {

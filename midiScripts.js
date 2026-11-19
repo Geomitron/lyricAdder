@@ -230,7 +230,7 @@ function midiParse() {
 		console.log(globalSeparatedLyrics);
 
 		// change the HTML stuffs
-		HTMLChartName.innerHTML = midiPath.split("\\")[midiPath.split("\\").length - 2]
+		HTMLChartName.innerHTML = midiSongName(" by ")
 		HTMLChartInfoDiv.style.display = "block";
 		HTMLPhraseDiv.style.display = "none";
 		HTMLMidiWriteButton.style.display = "block";
@@ -430,11 +430,22 @@ function writeMidiFile() {
 	console.log("Output file written.");
 }
 
+// The song's name and artist without special characters, joined by the separator, from the song.ini in the MIDI file's
+// folder, or the folder's name when it has no song.ini
+function midiSongName(separator) {
+	let values = songIni.readSongSection(midiPath);
+	if (values === null) {
+		return midiPath.split("\\")[midiPath.split("\\").length - 2];
+	}
+	let song = songIni.nameAndArtist(values);
+	return song.name.replace(/[^\w\s]/g, "") + separator + song.artist.replace(/[^\w\s]/g, "");
+}
+
 // write the backup file, if it fails, return false and cascade that back
 function writeBackupFile() {
 
-	// get the file parth from the folder name, removing special characters
-	let backupFileName = midiPath.split("\\")[midiPath.split("\\").length - 2].replace(/ /g, "").replace(/[^\w\s]/g, "") + "_backup.mid"
+	// get the file name from the song's name and artist, or the folder name, removing special characters
+	let backupFileName = midiSongName("_").replace(/ /g, "").replace(/[^\w\s]/g, "") + "_backup.mid"
 
 	// write the file
 	fs.writeFileSync(config.pathToBackupFolder + "/" + backupFileName, fs.readFileSync(midiPath), null, function (err) {
