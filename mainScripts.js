@@ -1,5 +1,11 @@
 // Normal require stuffs
 const fs = require("fs");
+const { webUtils } = require("electron");
+
+// The path of the file picked in a file input
+function pickedPath(input) {
+	return webUtils.getPathForFile(input.files[0]);
+}
 
 // File requires to other .js files
 var songStuffs = require("./soundStuff.js");
@@ -75,7 +81,7 @@ function customErrorMessage(active, messageType, message) {
 // Writes the path selected to the config file
 function writePath() {
 	if (HTMLChartFilePath.files[0] !== undefined) {
-		config.pathToChartFile = HTMLChartFilePath.files[0].path;
+		config.pathToChartFile = pickedPath(HTMLChartFilePath);
 		fs.writeFileSync(config.pathToBackupFolder + "/config.json", JSON.stringify(config, null, "\t"), "utf8", function (err) {
 			console.log(err);
 		});
@@ -668,7 +674,7 @@ function overwriteOriginalFile() {
 
 // temporary function for data gathering
 function gatherChartData() {
-	var folderPathInput = document.getElementById("folderSelect").files[0].path;
+	var folderPathInput = pickedPath(document.getElementById("folderSelect"));
 
 	var gatherer = require("./dataGather.js");
 
@@ -690,7 +696,7 @@ const newChart = require ("./mainJS/newChart.js");
 function fileReader() {
 	//console.log(document.getElementById("chartReaderInput"));
 
-	let path = document.getElementById("chartReaderInput").files[0].path;
+	let path = pickedPath(document.getElementById("chartReaderInput"));
 
 	newChart.readChart(path);
 

@@ -57,7 +57,7 @@ function midiParse() {
 	console.log("midi stuffs called");
 
 	// get the file path
-	midiPath = HTMLMidiFile.files[0].path;
+	midiPath = pickedPath(HTMLMidiFile);
 
 	if (lastModifiedMIDIFile != fs.statSync(midiPath).mtimeMs) {
 		console.log("Reading the file since modified time isn't the same");
@@ -230,7 +230,7 @@ function midiParse() {
 		console.log(globalSeparatedLyrics);
 
 		// change the HTML stuffs
-		HTMLChartName.innerHTML = HTMLMIDIFilePath.files[0].path.split("\\")[HTMLMIDIFilePath.files[0].path.split("\\").length - 2]
+		HTMLChartName.innerHTML = midiPath.split("\\")[midiPath.split("\\").length - 2]
 		HTMLChartInfoDiv.style.display = "block";
 		HTMLPhraseDiv.style.display = "none";
 		HTMLMidiWriteButton.style.display = "block";
@@ -434,7 +434,7 @@ function writeMidiFile() {
 function writeBackupFile() {
 
 	// get the file parth from the folder name, removing special characters
-	let backupFileName = HTMLMIDIFilePath.files[0].path.split("\\")[HTMLMIDIFilePath.files[0].path.split("\\").length - 2].replace(/ /g, "").replace(/[^\w\s]/g, "") + "_backup.mid"
+	let backupFileName = midiPath.split("\\")[midiPath.split("\\").length - 2].replace(/ /g, "").replace(/[^\w\s]/g, "") + "_backup.mid"
 
 	// write the file
 	fs.writeFileSync(config.pathToBackupFolder + "/" + backupFileName, fs.readFileSync(midiPath), null, function (err) {

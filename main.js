@@ -13,9 +13,19 @@ var configTemplate = {
 }
 
 function createWindow () {
-	win = new BrowserWindow({ width: 1000, height: 900});
+	// The page's scripts read and write files with Node, so they run without Electron's isolation (the page loads
+	// only this app's own files)
+	win = new BrowserWindow({ width: 1000, height: 900, webPreferences: { nodeIntegration: true, contextIsolation: false } });
 
 	win.loadFile("index.html");
+
+	// F12 opens the developer tools
+	win.webContents.on("before-input-event", (event, input) => {
+		if (input.type == "keyDown" && input.key == "F12") {
+			win.webContents.toggleDevTools();
+			event.preventDefault();
+		}
+	});
 
 	testPaths();
 	testVersion();
