@@ -26,7 +26,8 @@ var modifiedOutputFile;
 var lastModifiedChartFile = 0;
 
 // Global HTML element variables
-document.getElementById("version").innerHTML = config.version;
+// This build's label, beside its version, so it isn't taken for DarkAngel2096's own
+document.getElementById("version").innerHTML = config.version + " Geomitron";
 
 var HTMLChartFilePath = document.getElementById("chartFilePathInput");
 let HTMLMIDIFilePath = document.getElementById("midiFilePathInput");
